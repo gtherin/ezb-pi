@@ -1,0 +1,33 @@
+#!/bin/bash
+
+
+### BEGIN INIT INFO
+# Provides:          update
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+#chkconfig 2345 66 77
+#description:custom
+# Short-Description: ezblock-update service
+### END INIT INFO
+
+
+
+case "$1" in
+    start)
+        echo "Starting ezblock-update"
+        # sudo modprobe w1-gpio
+        # sudo modprobe w1-therm
+        sudo python3 /opt/ezblock/ezb_update.py
+        ;;
+    stop)
+        echo "Stopping ezblock-update"
+        ;;
+    *)
+        echo "Usage: sudo service ezblock-update start|stop|restart"
+        exit 1
+        ;;
+esac
+
+exit 0
