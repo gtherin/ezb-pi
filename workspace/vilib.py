@@ -46,6 +46,7 @@ def findContours(img):
     return contours, hierarchy
 
 def getIP():
+    print("USE ezb-pi/vilib.py")
     wlan0 = os.popen("ifconfig wlan0 |awk '/inet/'|awk 'NR==1 {print $2}'").readline().strip('\n')
     eth0 = os.popen("ifconfig eth0 |awk '/inet/'|awk 'NR==1 {print $2}'").readline().strip('\n')
 
@@ -159,16 +160,13 @@ def video_feed_png():
 
 
 def web_camera_start():
-
-    print("START CAMERA 1")
     try:
-        app.run(host='192.168.86.41', port=9000, threaded=True, debug=False)
-        #app.run(host='192.168.0.44', port=9000, threaded=True, debug=False)
-        #app.run(host='0.0.0.0', port=9000, threaded=True, debug=False)
+        ip_address = '192.168.0.47' if "PICARX_ROGUE_MODE" in os.environ.keys() else '0.0.0.0'
+        port = 9000
+        print(f"LOGGGGGGGGGGGGGGG: picarx.mv_start ({ip_address}:{port}) [PICARX_ROGUE_MODE]")
+        app.run(host=ip_address, port=port, threaded=True, debug=False)
     except Exception as e:
         log(e)
-    print("START CAMERA 2")
-
 # endregion : flask
 
 # 滤镜
@@ -519,7 +517,7 @@ class Vilib(object):
 
 
     @staticmethod
-    def camera_start(web_func = True,inverted_flag = False):
+    def camera_start(web_func = True, inverted_flag = False, px=None):
 
         if inverted_flag == True:
             Vilib.detect_obj_parameter['camera_flip'] = True
@@ -532,9 +530,9 @@ class Vilib(object):
             worker_1 = threading.Thread(name='worker 1',target=web_camera_start)
             # worker_1.setDaemon(True)
             worker_1.start()
-            # print("worker_1:",worker_1.pid)
+            print("worker_1:",worker_1)
         worker_2.start()
-        # # print("worker_2:",worker_2.pid)
+        print("worker_2:",worker_2)
 
 
 # 功能开关

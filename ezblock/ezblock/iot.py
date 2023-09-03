@@ -1,11 +1,13 @@
-import paho.mqtt.client as mqtt 
+import paho.mqtt.client as mqtt
 import json
 import time
 import os
 import re
 from .utils import log
+from .user_info import USER, USER_HOME
 
 def getIP(ifaces=['wlan0', 'eth0']):
+    print("USE ezblock/iot.py")
     if isinstance(ifaces, str):
         ifaces = [ifaces]
     for iface in list(ifaces):
@@ -29,7 +31,7 @@ def run_command(cmd):
 
 class IOT():
     
-    MQTT_BROKER_HOST = '' 
+    MQTT_BROKER_HOST = ''
     MQTT_BROKER_PORT = 1883
     MQTT_KEEP_ALIVE_INTERVAL = 60
     
@@ -75,32 +77,16 @@ class IOT():
         log('t %s'%(topic))
         if ip:
             self.client.subscribe(topic)
-            self.client.on_message=self.on_message 
+            self.client.on_message=self.on_message
             self.client.loop_start()
             if topic in list(self.recv_date.keys()):
                 return self.recv_date[topic]
             return None
         else:
-            run_command("sudo touch /home/pi/noip")
+            run_command(f"sudo touch {USER_HOME}/noip")
 
 
-def test():
-    import time
-    __IOT_TOKEN__ = "16227124370004660887403726913706840856139"
-    __IOT__ = IOT(__IOT_TOKEN__)
 
-
-    while True:
-        print("%s"%(__IOT__.get("com/iot/actuators_Button_1_a")))
-        print("%s"%('abc'))
-        time.sleep(1)
-        print("%s"%(__IOT__.get("com/iot/actuators_Slider_1_b")))
-        time.sleep(1)
-
-
-    
-if __name__ == "__main__":
-    test()
 
 
         

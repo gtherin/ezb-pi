@@ -1,12 +1,7 @@
 from .basic import _Basic_class
-# __print__ = print
 from .utils import getIP
 import time
-from os import system
-from .ble import BLE
 
-ble = BLE()
-# re-正则表达式
 class WiFi(_Basic_class):
     message = """
 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
@@ -30,7 +25,7 @@ update_config=1 """
         if result == ssid and ip != False:
             print('Wi-Fi is already connected to %s, skip'%(ssid))
             print("IP: %s" % ip)
-            return True
+            return ip
         print("Connecting to \"{}\"...".format(ssid))
         message = self.message.format(self.country, ssid, psk)
         with open("/etc/wpa_supplicant/wpa_supplicant.conf", "w") as f:
@@ -46,12 +41,12 @@ update_config=1 """
                 if ip:
                     print("IP: %s" % ip)
                     print('WiFi connect success')
-                    return True
+                    return ip
 
                 time_end = time.time()
                 if time_end-time_start > 10:
                     print('WiFi connect failed')
-                    break 
+                    break
                 time.sleep(0.1)
         return False
 
@@ -69,7 +64,7 @@ update_config=1 """
         # print(result != "OK")
         if result != "OK":
             print("Set country failed")
-            ble.write("Set country failed")
+            # ble.write("Set country failed")
             with open("/etc/wpa_supplicant/wpa_supplicant.conf", "w") as f:
                 f.write(self.text)
             self.run_command("sudo systemctl enable wpa_supplicant.service")
@@ -90,7 +85,7 @@ update_config=1 """
         
 
     def write(self, country, ssid, psk):
-        # if commition failed   sudo systemctl enable wpa_supplicant.service  and reboot
-        self.set_country(country) 
+        # if commition failed  sudo systemctl enable wpa_supplicant.service  and reboot
+        self.set_country(country)
         return self.connect(ssid, psk)
 

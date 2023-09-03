@@ -20,7 +20,7 @@ class Robot():
     def __init__(self, pin_list, group=4, db='/opt/ezblock/.config',name=None, init_angles=None):
 
         self.servo_list = []
-        self.pin_num = len(pin_list)   
+        self.pin_num = len(pin_list)
         self.list_name = name
 
 
@@ -41,11 +41,18 @@ class Robot():
         self.db = fileDB(db=db)
         temp = self.db.get(self.list_name, default_value=str(self.new_list(0)))
         temp = [float(i.strip()) for i in temp.strip("[]").split(",")]
-        self.offset = temp
+        # check
+        if len(temp) == self.pin_num:
+            self.offset = temp
+        else:
+            print('\033[35m Incorrect number of elements in offset list \033[0m')
+            self.offset = self.new_list(0)
+  
+        
 
-        # parameter init 
+        # parameter init
         self.servo_positions = self.new_list(0)
-        self.origin_positions = self.new_list(0)   
+        self.origin_positions = self.new_list(0)
         self.calibrate_position = self.new_list(0)
         self.direction = self.new_list(1)
 

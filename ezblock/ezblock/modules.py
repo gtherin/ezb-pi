@@ -37,7 +37,7 @@ class Ultrasonic():
                 
 
 class DS18X20():
-    def __init__(self, *args, **kargs):
+    def __init__(self, pin):
         # self.pin = pin
         pass
     
@@ -99,7 +99,7 @@ class ADXL345():
     _AXISES = [_REG_DATA_X, _REG_DATA_Y, _REG_DATA_Z]
     _OFFSET = [_REG_OFSX, _REG_OFSY, _REG_OFSZ]
 
-    def __init__(self, address=None):  
+    def __init__(self, address=None):
         self.i2c = I2C()
         if address is None:
             self.address = self._ADDRESS
@@ -129,8 +129,8 @@ class ADXL345():
     def _read_offset(self,axis):
         offset = self.i2c._i2c_read_i2c_block_data(self.address, self._OFFSET[0],6)
         print('offset:%s'%offset)
+  
 
-        
 class RGB_LED():
     def __init__(self, Rpin, Gpin, Bpin, common=1):
         self.Rpin = Rpin
@@ -146,7 +146,7 @@ class RGB_LED():
         G_val = (color & 0x00ff00) >> 8
         B_val = (color & 0x0000ff) >> 0
 
-        if self.common == 1: # common anode 
+        if self.common == 1: # common anode
             R_val = 255-R_val
             G_val = 255-G_val
             B_val = 255-B_val
@@ -202,6 +202,7 @@ class Sound():
         for _ in range(times):
             value = self.read_raw()
             value_list.append(value)
+            time.sleep(0.001)
         value = sum(value_list)/times
         return value
 

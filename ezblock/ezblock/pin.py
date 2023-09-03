@@ -38,8 +38,8 @@ class Pin(_Basic_class):
         "LED": 26,
         "BOARD_TYPE": 12,
         "RST": 16,
-        "BLEINT": 13,
-        "BLERST": 20,
+        "D13": 13,
+        "D20": 20, # BLE_reset
         "MCURST": 21,
     }
 
@@ -66,8 +66,8 @@ class Pin(_Basic_class):
         "LED": 26,
         "BOARD_TYPE": 12,
         "RST": 16,
-        "BLEINT": 13,
-        "BLERST": 20,
+        "D13": 13,
+        "D20": 20, # BLE_reset
         "MCURST":  5, # Changed
     }
 

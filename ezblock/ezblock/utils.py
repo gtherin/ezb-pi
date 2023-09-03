@@ -3,19 +3,19 @@ import time
 import os
 import re
 import math
+from .user_info import USER, USER_HOME
 
-
-def log(msg:str=None,level='DEBUG',end='\n',flush=False,timestamp=True):
+def log(msg:str, location='DEBUG', end='\n', flush=False, timestamp=True, color=''):
     with open('/opt/ezblock/log','a+') as log_file:
         if timestamp == True:
             _time = time.strftime("%y/%m/%d %H:%M:%S", time.localtime())
             ct = time.time()
             _msecs = '%03d '%((ct - int(ct)) * 1000)
-            print('%s,%s[%s] %s'%(_time,_msecs,level,msg), end=end, flush=flush, file=log_file)
-            print('%s,%s[%s] %s'%(_time,_msecs,level,msg), end=end, flush=flush, file=sys.stdout)
+            print('%s,%s[%s] %s'%(_time, _msecs, location, msg), end=end, flush=flush, file=log_file)
+            print('\033[%sm%s,%s[%s] %s\033[0m'%(color, _time, _msecs, location, msg), end=end, flush=flush, file=sys.stdout)
         else:
             print('%s'%msg, end=end, flush=flush, file=log_file)
-            print('%s'%msg, end=end, flush=flush, file=sys.stdout) 
+            print('\033[%sm%s\033[0m'%(color, msg), end=end, flush=flush, file=sys.stdout)
 
 def delay(ms):
     time.sleep(ms/1000)
@@ -42,22 +42,22 @@ def is_installed(cmd):
         return False
 
 def ezblock_update():
-    files = os.listdir("/home/pi/")
+    files = os.listdir(f"{USER_HOME}/")
     if "ezb-pi" in files:
-        os.chdir("/home/pi/ezb-pi")
+        os.chdir(f"{USER_HOME}/ezb-pi")
         status, error = run_command("git pull origin master")
         if status == 0:
             return True
         else:
             return error
     else:
-        os.chdir("/home/pi")
+        os.chdir(f"{USER_HOME}")
         status, error = run_command("git clone https://github.com/ezblockcode/ezb-pi.git")
         if status == 0:
             return True
         else:
             return error
-        os.chdir("/home/pi/ezb-pi")
+        os.chdir(f"{USER_HOME}/ezb-pi")
     status, error = run_command("sudo python3 install.py")
     if status == 0:
         return True
@@ -68,6 +68,7 @@ def mapping(x, in_min, in_max, out_min, out_max):
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
 def getIP(ifaces=['wlan0', 'eth0']):
+    print("USE ezblock/utils.py")
     if isinstance(ifaces, str):
         ifaces = [ifaces]
     for iface in list(ifaces):

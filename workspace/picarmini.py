@@ -70,30 +70,30 @@ def motor_direction_calibration(motor, value):
 def dir_servo_angle_calibration(value):
     global dir_cal_value
     dir_cal_value = value
-    set_dir_servo_angle(dir_cal_value)
+    set_steering_angle(dir_cal_value)
     # dir_servo_pin.angle(dir_cal_value)
 
-def set_dir_servo_angle(value):
+def set_steering_angle(value):
     global dir_cal_value
     dir_servo_pin.angle(value+dir_cal_value)
 
 def camera_servo1_angle_calibration(value):
     global cam_cal_value_1
     cam_cal_value_1 = value
-    set_camera_servo1_angle(cam_cal_value_1)
+    set_camera_pan_angle(cam_cal_value_1)
     # camera_servo_pin1.angle(cam_cal_value)
 
 def camera_servo2_angle_calibration(value):
     global cam_cal_value_2
     cam_cal_value_2 = value
-    set_camera_servo2_angle(cam_cal_value_2)
+    set_camera_tilt_angle(cam_cal_value_2)
     # camera_servo_pin2.angle(cam_cal_value)
 
-def set_camera_servo1_angle(value):
+def set_camera_pan_angle(value):
     global cam_cal_value_1
     camera_servo_pin1.angle(-1 *(value+cam_cal_value_1))
 
-def set_camera_servo2_angle(value):
+def set_camera_tilt_angle(value):
     global cam_cal_value_2
     camera_servo_pin2.angle(-1 * (value+cam_cal_value_2))
 
@@ -106,7 +106,7 @@ def get_adc_value():
 
 def set_power(speed):
     set_motor_speed(1, speed)
-    set_motor_speed(2, speed) 
+    set_motor_speed(2, speed)
 
 def backward(speed):
     set_motor_speed(1, speed)
@@ -148,10 +148,10 @@ def Get_distance():
     return cm
      
 def test():
-    # dir_servo_angle_calibration(-10) 
-    set_dir_servo_angle(-40)
+    # dir_servo_angle_calibration(-10)
+    set_steering_angle(-40)
     # time.sleep(1)
-    # set_dir_servo_angle(0)
+    # set_steering_angle(0)
     # time.sleep(1)
     # set_motor_speed(1, 1)
     # set_motor_speed(2, 1)
@@ -160,8 +160,8 @@ def test():
 
 # if __name__ == "__main__":
 #     try:
-#         # dir_servo_angle_calibration(-10) 
+#         # dir_servo_angle_calibration(-10)
 #         while 1:
 #             test()
-#     finally: 
+#     finally:
 #         stop()

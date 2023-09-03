@@ -38,8 +38,6 @@ coverage.xml
 
 # Sphinx documentation
 docs/_build/
-ezblock/ble_uart/*
-*.deb
 
 # Mac
 *.DS_Store

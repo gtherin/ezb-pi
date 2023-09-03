@@ -3,11 +3,12 @@ import time
 import threading
 import pyaudio
 import numpy as np
+from .user_info import USER, USER_HOME
 
 class Music(_Basic_class):
     MUSIC_BEAT = 500
-    MUSIC_DIR = '/home/pi/Music/'
-    SOUND_DIR = '/home/pi/Sound/'
+    MUSIC_DIR = f'{USER_HOME}/Music/'
+    SOUND_DIR = f'{USER_HOME}/Sound/'
 
     NOTES = {
         "Low C": 261.63,
@@ -89,11 +90,13 @@ class Music(_Basic_class):
 
     def sound_play(self, file_name):
         self.music_set_volume(80)
-        self.pygame.mixer.music.load(file_name)
+        self.pygame.mixer.music.load(str(file_name))
         self.pygame.mixer.music.play()
 
+        
+
     def sound_effect_play(self, file_name):
-        file_name = self.SOUND_DIR + file_name
+        # file_name = self.SOUND_DIR + file_name
         music = self.pygame.mixer.Sound(str(file_name))
         time_delay = round(music.get_length(), 2)
         music.play()
@@ -133,7 +136,7 @@ class Music(_Basic_class):
         p = pyaudio.PyAudio()
         volume = 1 # range [0.0, 1.0]
         fs = 44100 # sampling rate, Hz, must be integer
-        duration /= 2000 # devide 2 for half tone up half rest, divide 1000 for ms to s 
+        duration /= 2000 # devide 2 for half tone up half rest, divide 1000 for ms to s
         _duration = duration * 4
         # generate samples, note conversion to float32 array
         samples = (np.sin(2*np.pi*np.arange(fs*_duration)*freq/fs)).astype(np.float32)
@@ -144,7 +147,7 @@ class Music(_Basic_class):
                         rate=fs,
                         output=True)
 
-        # play. May repeat with different volume values (if done interactively) 
+        # play. May repeat with different volume values (if done interactively)
         stream.write(volume*samples)
 
         # stream.stop_stream()
@@ -161,3 +164,5 @@ class MyThreading(threading.Thread):
 
     def run(self):
         self.func(**self.arg)
+
+
