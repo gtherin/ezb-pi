@@ -1,6 +1,23 @@
 #!/usr/bin/env python3
 import os, sys
 
+# ------- get username and userhome -------
+USER = None
+try:
+    USER = os.getlogin()
+except:
+    USER = None
+
+if USER == None or USER == '' or USER == 'root':
+    USER = os.popen("ls -l /opt/ |grep ezblock | awk '{print $3}'").readline().strip()
+
+USER_HOME = os.popen(f'getent passwd {USER} | cut -d: -f 6').readline().strip()
+
+print(f"user: {USER}")
+print(f"userhome: {USER_HOME}")
+
+# ------- ------------ -------
+
 errors = []
 
 avaiable_options = ['-h', '--help', '--no-dep']
@@ -33,8 +50,10 @@ APT_INSTALL_LIST = [
     "libqtgui4",
     "python3-flask",
     "libzbar0",
+    "bluez-firmware",  # Update bluez firmware
     #"libttspico-utils",
     "lsof",
+    "mplayer",
 ]
 
 PIP_INSTALL_LIST = [
@@ -61,17 +80,26 @@ def install():
     if "-h" in options or "--help" in options:
         print(usage)
         quit()
-    print("EzBlock service install process starts")
+    print("EzBlock service install process starts:")
     print("Install dependency")
     if "--no-dep" not in options:
         do(msg="update apt-get",
             cmd='run_command("sudo apt-get update")')
+        do(msg="dpkg --configure -a",
+            cmd='run_command(" sudo dpkg --configure -a")')
+       
+
         for dep in APT_INSTALL_LIST:
             do(msg="install %s"%dep,
                 cmd='run_command("sudo apt-get install %s -y")'%dep)
         for dep in PIP_INSTALL_LIST:
             do(msg="install %s"%dep,
                 cmd='run_command("sudo pip3 install %s")'%dep)
+
+        do(msg="install pico2wave",
+        cmd='run_command(" wget http://ftp.us.debian.org/debian/pool/non-free/s/svox/libttspico0_1.0+git20130326-9_armhf.deb'
+            +' && wget http://ftp.us.debian.org/debian/pool/non-free/s/svox/libttspico-utils_1.0+git20130326-9_armhf.deb'
+            +' && sudo apt-get install -f ./libttspico0_1.0+git20130326-9_armhf.deb ./libttspico-utils_1.0+git20130326-9_armhf.deb -y")')
 
     # do(msg="unpackaging swift",
     #     cmd='run_command("tar zxvf ./lib/swift-4.1.3-RPi23-RaspbianStretch.tgz")')
@@ -149,8 +177,8 @@ def install():
     do(msg="add write permission to log file",
         cmd='run_command("sudo chmod 666 /opt/ezblock/log")')
 
-    do(msg="change owner to opt ezblock",
-        cmd='run_command("sudo chown -R pi:pi /opt/ezblock/")')
+    do(msg=f"change owner to opt ezblock",
+        cmd=f'run_command("sudo chown -R {USER}:{USER} /opt/ezblock/")')
 
     do(msg="create .uspid_init_config file",
         cmd='run_command("sudo touch /opt/ezblock/.uspid_init_config")')
@@ -182,7 +210,7 @@ def cleanup():
         cmd='run_command("sudo rm -rf usr ezblock.egg-info")')
 
 class Modules(object):
-    ''' 
+    '''
         To setup /etc/modules
     '''
 
@@ -224,7 +252,7 @@ class Modules(object):
             return -1, e
 
 class Config(object):
-    ''' 
+    '''
         To setup /boot/config.txt
     '''
 
@@ -270,7 +298,7 @@ class Config(object):
             return -1, e
 
 class Cmdline(object):
-    ''' 
+    '''
         To setup /boot/cmdline.txt
     '''
 
@@ -310,8 +338,8 @@ def run_command(cmd=""):
 
 
 def do(msg="", cmd=""):
-    print(" - %s..." % (msg), end='\r')
-    print(" - %s... " % (msg), end='')
+    # print(" - %s..." % (msg), end='\r')
+    print(" - %s... " % (msg), end='', flush=True)
     status, result = eval(cmd)
     # print(status, result)
     if status == 0 or status == None or result == "":
@@ -328,5 +356,3 @@ if __name__ == "__main__":
         print("Canceled.")
         cleanup()
 
-# if __name__ == "__main__":
-#     test()

@@ -29,8 +29,7 @@ class Websocket():
         'P_region':None,
         'Q_region':None,
     }
-    print("LOGGGGGGGGGGGGGGG: Websocket", ip)
-    #ip = "192.168.9.47"
+    
     send_dict = {
         'Name':'Pitank-2',
         'Type':'Pitank',

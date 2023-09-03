@@ -112,7 +112,7 @@ class Ezbupdate(object):
                 return updatable_version_list, len(updatable_version_list)
 
         except Exception as e:
-            log('\033[1;35mLOGGGGGGGGGGGGGGG: \033[0m\n\t%s'% e)
+            log('\033[1;35mlog: \033[0m\n\t%s'% e)
             return False
 
     def update(self, _app_version:str):
@@ -150,7 +150,7 @@ class Ezbupdate(object):
                     cmd_status, cmd_result = run_command(unzip_cmd)
                     if cmd_status != 0:
                         log('Unpacking error.Please try again.')
-                        log('\033[1;35mLOGGGGGGGGGGGGGGG: \033[0m\n%s'% cmd_result)
+                        log('\033[1;35mlog: \033[0m\n%s'% cmd_result)
                         return False
                     else:
                         log('Unzip completed')
@@ -164,7 +164,7 @@ class Ezbupdate(object):
                     cmd_status, cmd_result = run_command(install_cmd)
                     if cmd_status != 0:
                         log('Install error.Please try again.')
-                        log('\033[1;35mLOGGGGGGGGGGGGGGG: \033[0m\n%s'% cmd_result)
+                        log('\033[1;35mlog: \033[0m\n%s'% cmd_result)
                         return False
                     else:
                         log('Install completed')
@@ -192,7 +192,7 @@ class Ezbupdate(object):
                     cmd_status, cmd_result = run_command(clean_cmd)
                     if cmd_status != 0:
                         log('Failed to clean up the update package.Please clean up manually.')
-                        log('\033[1;35m LOGGGGGGGGGGGGGGG: \033[0m\n%s'% cmd_result)
+                        log('\033[1;35m log: \033[0m\n%s'% cmd_result)
                     else:
                         log('Cleaned up successfully')
                 except Exception as e:

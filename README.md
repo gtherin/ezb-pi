@@ -22,7 +22,8 @@ https://github.com/sunfounder-ezblock/ezb-pi/tree/master/doc
 
 <a id="update"></a>
 ### Update:
-https://github.com/ezblockcode/ezb-pi/blob/master/CHANGELOG.md
+https://github.com/ezblockcode/ezb-pi/blob/EzBlock3.1/CHANGELOG.md
+
 
 ### Usage
 Trun on ezblock service:
