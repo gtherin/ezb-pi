@@ -1,48 +1,44 @@
-from ezblock import Servo, PWM, fileDB, Pin, ADC
+import ezblock
 import time
 from ezblock.user_info import USER, USER_HOME
 
 
-class PiCarX(object):
+class PiCar(object):
     PERIOD = 4095
     PRESCALER = 10
     TIMEOUT = 0.02
 
+    state = {"P7": 0, "P6": 0, "P0": 0, "P1": 0, "P2": 0}
+    calib = {"P7": 0, "P6": 0, "P0": 0, "P1": 0, "P2": 2}
+
     def __init__(self):
-        self.dir_servo_pin = Servo(PWM('P2'))
-        self.camera_servo_pin1 = Servo(PWM('P0'))
-        self.camera_servo_pin2 = Servo(PWM('P1'))
-        self.config_flie = fileDB(f'{USER_HOME}/.config')
-        self.dir_cal_value = int(self.config_flie.get(
-            "picarx_dir_servo", default_value=0))
-        self.cam_cal_value_1 = int(self.config_flie.get(
-            "picarx_cam1_servo", default_value=0))
-        self.cam_cal_value_2 = int(self.config_flie.get(
-            "picarx_cam2_servo", default_value=0))
-        self.dir_servo_pin.angle(self.dir_cal_value)
-        self.camera_servo_pin1.angle(self.cam_cal_value_1)
-        self.camera_servo_pin2.angle(self.cam_cal_value_2)
 
-        self.left_rear_pwm_pin = PWM("P13")
-        self.right_rear_pwm_pin = PWM("P12")
-        self.left_rear_dir_pin = Pin("D4")
-        self.right_rear_dir_pin = Pin("D5")
+        self.servos = {k: ezblock.Servo(ezblock.PWM(k)) for k in PiCar.state.keys()}
 
-        self.S0 = ADC('A0')
-        self.S1 = ADC('A1')
-        self.S2 = ADC('A2')
+        self.config_flie = ezblock.fileDB(f'{USER_HOME}/.config')
 
-        self.motor_direction_pins = [
-            self.left_rear_dir_pin, self.right_rear_dir_pin]
-        self.motor_speed_pins = [
-            self.left_rear_pwm_pin, self.right_rear_pwm_pin]
-        self.cali_dir_value = self.config_flie.get(
-            "picarx_dir_motor", default_value="[1,1]")
-        self.cali_dir_value = [int(i.strip())
-                               for i in self.cali_dir_value.strip("[]").split(",")]
+        for k, v in PiCar.state.items():
+            self.servos[k].angle(v)
+
+        self.left_rear_pwm_pin = ezblock.PWM("P13")
+        self.right_rear_pwm_pin = ezblock.PWM("P12")
+        self.left_rear_dir_pin = ezblock.Pin("D4")
+        self.right_rear_dir_pin = ezblock.Pin("D5")
+
+        self.pin_D0 = ezblock.Pin("D0")
+        self.pin_D1 = ezblock.Pin("D1")
+        self.ultrasonic = ezblock.Ultrasonic(self.pin_D0, self.pin_D1)
+
+        self.S0 = ezblock.ADC('A0')
+        self.S1 = ezblock.ADC('A1')
+        self.S2 = ezblock.ADC('A2')
+
+        self.motor_direction_pins = [self.left_rear_dir_pin, self.right_rear_dir_pin]
+        self.motor_speed_pins = [self.left_rear_pwm_pin, self.right_rear_pwm_pin]
+        self.cali_dir_value = self.config_flie.get("picarx_dir_motor", default_value="[1,1]")
+        self.cali_dir_value = [int(i.strip()) for i in self.cali_dir_value.strip("[]").split(",")]
         self.cali_speed_value = [0, 0]
-        self.dir_current_angle = 0
-        # 初始化PWM引脚
+
         for pin in self.motor_speed_pins:
             pin.period(self.PERIOD)
             pin.prescaler(self.PRESCALER)
@@ -82,55 +78,55 @@ class PiCarX(object):
             self.cali_dir_value[motor] = -1 * self.cali_dir_value[motor]
         self.config_flie.set("picarx_dir_motor", self.cali_dir_value)
 
-    def dir_servo_angle_calibration(self, value):
-        # global dir_cal_value
-        self.dir_cal_value = value
-        print("calibrationdir_cal_value:", self.dir_cal_value)
-        self.config_flie.set("picarx_dir_servo", "%s" % value)
-        self.dir_servo_pin.angle(value)
-
     def set_steering_angle(self, value):
-        # global dir_cal_value
-        self.dir_current_angle = value
-        angle_value = value + self.dir_cal_value
+        self.state["P2"] = value
+        angle_value = value + self.calib["P2"]
         if angle_value != 0:
             print("angle_value:", round(angle_value, 2))
-        # print("set_steering_angle_1:",angle_value)
-        # print("set_steering_angle_2:",dir_cal_value)
-        self.dir_servo_pin.angle(angle_value)
-
-    def camera_servo1_angle_calibration(self, value):
-        # global cam_cal_value_1
-        self.cam_cal_value_1 = value
-        self.config_flie.set("picarx_cam1_servo", "%s" % value)
-        print("cam_cal_value_1:", self.cam_cal_value_1)
-        self.camera_servo_pin1.angle(value)
-
-    def camera_servo2_angle_calibration(self, value):
-        # global cam_cal_value_2
-        self.cam_cal_value_2 = value
-        self.config_flie.set("picarx_cam2_servo", "%s" % value)
-        print("picarx_cam2_servo:", self.cam_cal_value_2)
-        self.camera_servo_pin2.angle(value)
+        self.servos["P2"].angle(angle_value)
 
     def set_camera_pan_angle(self, value):
-        # global cam_cal_value_1
-        self.camera_servo_pin1.angle(-1*(value + -1*self.cam_cal_value_1))
-        # print("self.cam_cal_value_1:",self.cam_cal_value_1)
-        print((value + self.cam_cal_value_1))
+        self.set_servo_angle("P0", -1*(value + -1*self.state["P0"]), sum=False)
 
     def set_camera_tilt_angle(self, value):
-        # global cam_cal_value_2
-        self.camera_servo_pin2.angle(-1*(value + -1*self.cam_cal_value_2))
-        # print("self.cam_cal_value_2:",self.cam_cal_value_2)
-        print((value + self.cam_cal_value_2))
+        self.set_servo_angle("P1", -1*(value + -1*self.state["P1"]), sum=False)
+
+    def set_servo_angle(self, sid, angle, sum=True):
+
+        angle = int(angle)
+        if sid in ["UP", "RIGHT"]:
+            angle *= -1
+
+        if sid in ["PAN", "HOR", "LEFT", "RIGHT"]:
+            sid = "P0"
+        if sid in ["TILT", "VER", "DOWN", "UP"]:
+            sid = "P1"
+        if sid in ["DIR", "STEER"]:
+            sid = "P2"
+
+        # P7 cap 90
+
+        if sum:
+            self.state[sid] += angle
+        else:
+            self.state[sid] = angle
+        print(f"{sid}, {angle}, {self.state[sid]}")
+        self.servos[sid].angle(self.state[sid])
+        return self.state[sid]
+
+    def get_distance(self):
+        return self.ultrasonic.read()
+
+    def get_grayscale_data(self):
+        my_3ch = [self.S0.read(), self.S1.read(), self.S2.read()]
+        print("%s"%my_3ch)
 
     def set_power(self, speed):
         self.set_motor_speed(1, speed)
         self.set_motor_speed(2, speed)
 
     def backward(self, speed):
-        current_angle = self.dir_current_angle
+        current_angle = self.state["P2"]
         if current_angle != 0:
             abs_current_angle = abs(current_angle)
             if abs_current_angle > 40:
@@ -148,7 +144,7 @@ class PiCarX(object):
             self.set_motor_speed(2, speed)
 
     def forward(self, speed):
-        current_angle = self.dir_current_angle
+        current_angle = self.state["P2"]
         if current_angle != 0:
             abs_current_angle = abs(current_angle)
             if abs_current_angle > 40:
