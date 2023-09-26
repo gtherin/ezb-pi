@@ -161,9 +161,9 @@ def video_feed_png():
 
 def web_camera_start():
     try:
-        ip_address = '192.168.0.47' if "PICARX_ROGUE_MODE" in os.environ.keys() else '0.0.0.0'
+        ip_address = os.environ['PICARX_PX_ADDRESS'] if "PICARX_PX_ADDRESS" in os.environ.keys() else '0.0.0.0'
         port = 9000
-        print(f"LOGGGGGGGGGGGGGGG: picarx.mv_start ({ip_address}:{port}) [PICARX_ROGUE_MODE]")
+        print(f"LOGGGGGGGGGGGGGGG: picarx.mv_start ({ip_address}:{port}) [PICARX_PX_ADDRESS]")
         app.run(host=ip_address, port=port, threaded=True, debug=False)
     except Exception as e:
         log(e)

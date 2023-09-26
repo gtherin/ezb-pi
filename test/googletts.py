@@ -17,7 +17,7 @@ header = {
 
 data = json.dumps(data)
 data = bytes(data, 'utf8')
-url = 'http://192.168.6.224:11000/api/web/v2/ezblock/google/tts'
+url = 'http://192.168.1.122:11000/api/web/v2/ezblock/google/tts'
 req = request.Request(url, data=data, headers=header, method='POST')
 r = request.urlopen(req)
 result = r.read()

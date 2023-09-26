@@ -212,7 +212,7 @@ class Websocket():
         try:
             for _ in range(10):
                 ip = getIP()
-                # ip = '192.168.18.27'
+                # ip = '192.168.1.122'
                 if ip:
                     print("IP Address: "+ ip)
                     # start_http_server()
