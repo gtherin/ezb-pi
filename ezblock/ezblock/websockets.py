@@ -689,11 +689,9 @@ class WS():
 
     # start websocket_service_process
     def websocket_service_process(self):
-        print("LOGGGGGGGGGGGGGGG: ezblock.websocket_service_process")
         if self.ws_battery_status == True:
             self.ws_battery_process_close()
         Ezb_Service.reset_mcu_func()
-        #192.168.0.47
         self.ws_process = Process(name='websocket service',target=self.start_loop,args=('0.0.0.0', )) # args=(ip, ) ：This is a tuple, the ',' is necessary !!!
         self.ws_process.start()
         self.websocket_service_pid = self.ws_process.pid

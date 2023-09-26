@@ -2,7 +2,6 @@ from ezblock import Servo, PWM, fileDB, Pin, ADC
 import time
 from ezblock.user_info import USER, USER_HOME
 
-
 class PiCarX(object):
     PERIOD = 4095
     PRESCALER = 10
