@@ -1,6 +1,7 @@
 import os
 from flask import Flask
 import threading
+import numpy as np
 
 import ezblock
 import Music as music_mod
@@ -11,16 +12,26 @@ from picar import PiCar
 appx = Flask(__name__)
 
 px = PiCar()
-
+# http://192.168.1.122:9001/move/10/10
 
 @appx.route('/move/<speed>/<angle>/<delay>')
 def move(speed, angle, delay):
-    print(f'move({speed}, {angle}): start)')
-    px.forward(int(speed)) # -100/100
-    px.set_steering_angle(int(angle)) # -45/45
-    ezblock.delay(int(delay))
-    px.forward(0) # -100/100
-    px.set_steering_angle(0) # -45/45
+    rounder = 20
+    delay = np.max([int(delay)-rounder, 1])
+
+    smoother = list(np.linspace(0, 1, rounder)) + list(np.ones(delay)) + list(np.linspace(1, 0, rounder))
+    for s in smoother:
+        px.forward(int(float(speed)*s)) # -100/100
+        px.set_steering_angle(int(float(angle)*s)) # -45/45
+        ezblock.delay(1)
+
+    return f'move({speed}, {angle}): done)'
+
+@appx.route('/jmove/<speed>/<angle>')
+def jmove(speed, angle):
+    px.forward(int(float(speed))) # -100/100
+    px.set_steering_angle(int(float(angle))) # -45/45
+
     return f'move({speed}, {angle}): done)'
 
 @appx.route('/servo/<sid>/<angle>')
@@ -97,9 +108,9 @@ def say_text(text):
     return f'say_text({text}): done'
 
 
-
 @appx.route('/horn')
 def horn(): 
+    
     status, result = utils.run_command('sudo killall pulseaudio')
     music.sound_effect_threading('./sounds/car-double-horn.wav')
     
@@ -149,7 +160,6 @@ def line_following():
     else:
         px.set_dir_servo_angle(0)
         px.stop()
-
 
 
 def mv_start():

@@ -9,7 +9,7 @@ class PiCar(object):
     TIMEOUT = 0.02
 
     state = {"P7": 0, "P6": 0, "P0": 0, "P1": 0, "P2": 0}
-    calib = {"P7": 0, "P6": 0, "P0": 0, "P1": 0, "P2": 2}
+    calib = {"P7": 0, "P6": 0, "P0": 0, "P1": 0, "P2": 3}
 
     def __init__(self):
 
