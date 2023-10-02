@@ -14,6 +14,24 @@ appx = Flask(__name__)
 px = PiCar()
 # http://192.168.1.122:9001/move/10/10
 
+
+@appx.route('/jmove/<speed>/<angle>')
+def jmove(speed, angle):
+    px.forward(int(float(speed))) # -100/100
+    px.set_steering_angle(int(float(angle))) # -45/45
+
+    return f'move({speed}, {angle}): done)'
+
+@appx.route('/camera/<vertical>/<horizontal>')
+def camera(vertical, horizontal):
+    
+    horizontal = 0
+    total_vertical = px.set_servo_angle("VERTICAL", int(vertical), sum=True)
+    total_horizontal = px.set_servo_angle("HORIZONTAL", int(horizontal), sum=True)
+
+    return f'servo("VERTICAL") = {total_vertical} +=  {vertical}\nservo("HORIZONTAL") = {total_horizontal} +=  {horizontal}: done'
+
+
 @appx.route('/move/<speed>/<angle>/<delay>')
 def move(speed, angle, delay):
     rounder = 20
@@ -27,12 +45,6 @@ def move(speed, angle, delay):
 
     return f'move({speed}, {angle}): done)'
 
-@appx.route('/jmove/<speed>/<angle>')
-def jmove(speed, angle):
-    px.forward(int(float(speed))) # -100/100
-    px.set_steering_angle(int(float(angle))) # -45/45
-
-    return f'move({speed}, {angle}): done)'
 
 @appx.route('/servo/<sid>/<angle>')
 def servo(sid, angle):

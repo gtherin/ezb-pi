@@ -1,5 +1,6 @@
 import ezblock
 import time
+import numpy as np
 from ezblock.user_info import USER, USER_HOME
 
 
@@ -94,22 +95,21 @@ class PiCar(object):
     def set_servo_angle(self, sid, angle, sum=True):
 
         angle = int(angle)
-        if sid in ["UP", "RIGHT"]:
+        if sid in ["UP", "RIGHT", "VERTICAL", "HORIZONTAL"]:
             angle *= -1
 
-        if sid in ["PAN", "HOR", "LEFT", "RIGHT"]:
+        if sid in ["PAN", "HOR", "LEFT", "RIGHT", "HORIZONTAL"]:
             sid = "P0"
-        if sid in ["TILT", "VER", "DOWN", "UP"]:
+        if sid in ["TILT", "VER", "DOWN", "UP", "VERTICAL"]:
             sid = "P1"
         if sid in ["DIR", "STEER"]:
             sid = "P2"
 
         # P7 cap 90
+        ideal_angle = self.state[sid] + angle if sum else angle
+        ideal_angle = int(np.clip(ideal_angle, -45, 45))
 
-        if sum:
-            self.state[sid] += angle
-        else:
-            self.state[sid] = angle
+        self.state[sid] = ideal_angle
         print(f"{sid}, {angle}, {self.state[sid]}")
         self.servos[sid].angle(self.state[sid])
         return self.state[sid]
